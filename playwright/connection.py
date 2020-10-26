@@ -177,7 +177,8 @@ class Connection:
             if error:
                 parsed_error = parse_error(error["error"])  # type: ignore
                 parsed_error.stack = callback.stack_trace
-                callback.future.set_exception(parsed_error)
+                if not callback.future.done():
+                    callback.future.cancel()
             else:
                 result = self._replace_guids_with_channels(msg.get("result"))
                 callback.future.set_result(result)
