@@ -63,7 +63,7 @@ class Transport:
                 self.on_message(obj)
             except asyncio.IncompleteReadError:
                 break
-            await asyncio.sleep(0)
+            await asyncio.sleep(0.01)
 
     def send(self, message: Dict) -> None:
         msg = json.dumps(message)
