@@ -559,10 +559,22 @@ class Page(ChannelOwner):
     async def title(self) -> str:
         return await self._main_frame.title()
 
+    # async def close(self, runBeforeUnload: bool = None) -> None:
+    #     await self._channel.send("close", locals_to_params(locals()))
+    #     if self._owned_context:
+    #         await self._owned_context.close()
+
     async def close(self, runBeforeUnload: bool = None) -> None:
         await self._channel.send("close", locals_to_params(locals()))
         if self._owned_context:
             await self._owned_context.close()
+        self._dispose()
+
+    def _dispose(self) -> None:
+        objs_to_remove = ['Response', 'Request', 'ElementHandle', 'Frame', 'ConsoleMessage', 'JSHandle']
+        for k in tuple(filter(lambda k: any(o in k for o in objs_to_remove), self._connection._objects)):
+            self._connection._objects[k]._dispose()
+        super()._dispose()
 
     def isClosed(self) -> bool:
         return self._is_closed
